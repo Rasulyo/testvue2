@@ -1,9 +1,6 @@
 <template>
   <div id="app">
-    <nav>
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
-    </nav>
+    <notifications group="api" position="bottom right" />
     <router-view />
   </div>
 </template>
