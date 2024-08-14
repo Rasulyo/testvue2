@@ -53,8 +53,20 @@ export default {
       });
 
       if (success) {
+        this.$notify({
+          group: "api",
+          type: "success",
+          title: "Успешно",
+          text: success.response.data.detail || "Успешно",
+        });
         this.$router.push("/");
       } else {
+        this.$notify({
+          group: "api",
+          type: "error",
+          title: "Ошибка",
+          text: success.response.data.detail || "Неизвестная ошибка",
+        });
         this.errorMessage = "Invalid login credentials";
       }
     },

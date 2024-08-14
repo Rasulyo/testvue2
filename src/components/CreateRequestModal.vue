@@ -1,81 +1,100 @@
 <template>
   <div class="modal">
     <div class="modal-content">
-      <h3>Создание заявки</h3>
+      <div class="title-block">
+        <h3>Создание заявки</h3>
+        <h3>Новая</h3>
+      </div>
       <form @submit.prevent="handleSubmit">
-        <div class="form-group">
-          <label for="premise_id">Дом</label>
-          <select
-            v-model="form.premise_id"
-            id="premise_id"
-            @change="fetchApartments"
-          >
-            <option value="" disabled selected>Выберите дом</option>
-            <option
-              v-for="premise in premises"
-              :key="premise.id"
-              :value="premise.id"
+        <div class="first-block">
+          <div class="form-group">
+            <label for="premise_id">Дом</label>
+            <select
+              v-model="form.premise_id"
+              id="premise_id"
+              @change="fetchApartments"
             >
-              {{ premise.address }}
-            </option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label for="apartment_id">Квартира</label>
-          <select
-            v-model="form.apartment_id"
-            id="apartment_id"
-            :disabled="!form.premise_id"
-          >
-            <option value="" disabled selected>Выберите квартиру</option>
-            <option
-              v-for="apartment in apartments"
-              :key="apartment.id"
-              :value="apartment.id"
+              <option value="" disabled selected>Выберите дом</option>
+              <option
+                v-for="premise in premises"
+                :key="premise.id"
+                :value="premise.id"
+              >
+                {{ premise.address }}
+              </option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="apartment_id">Квартира</label>
+            <select
+              v-model="form.apartment_id"
+              id="apartment_id"
+              :disabled="!form.premise_id"
             >
-              {{ apartment.number }}
-            </option>
-          </select>
+              <option value="" disabled selected>Выберите квартиру</option>
+              <option
+                v-for="apartment in apartments"
+                :key="apartment.id"
+                :value="apartment.id"
+              >
+                {{ apartment.number }}
+              </option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="due_date">Срок</label>
+            <input
+              v-model="form.due_date"
+              type="datetime-local"
+              id="due_date"
+            />
+          </div>
         </div>
-        <div class="form-group">
-          <label for="last_name">Фамилия</label>
-          <input
-            v-model="form.applicant.last_name"
-            type="text"
-            id="last_name"
-          />
+        <div class="first-block">
+          <div class="form-group">
+            <label for="last_name">Фамилия</label>
+            <input
+              v-model="form.applicant.last_name"
+              type="text"
+              id="last_name"
+            />
+          </div>
+          <div class="form-group">
+            <label for="first_name">Имя</label>
+            <input
+              v-model="form.applicant.first_name"
+              type="text"
+              id="first_name"
+            />
+          </div>
+          <div class="form-group">
+            <label for="patronymic_name">Отчество</label>
+            <input
+              v-model="form.applicant.patronymic_name"
+              type="text"
+              id="patronymic_name"
+            />
+          </div>
+          <div class="form-group">
+            <label for="username">Телефон</label>
+            <input
+              v-model="form.applicant.username"
+              type="text"
+              id="username"
+            />
+          </div>
         </div>
-        <div class="form-group">
-          <label for="first_name">Имя</label>
-          <input
-            v-model="form.applicant.first_name"
-            type="text"
-            id="first_name"
-          />
-        </div>
-        <div class="form-group">
-          <label for="patronymic_name">Отчество</label>
-          <input
-            v-model="form.applicant.patronymic_name"
-            type="text"
-            id="patronymic_name"
-          />
-        </div>
-        <div class="form-group">
-          <label for="username">Телефон</label>
-          <input v-model="form.applicant.username" type="text" id="username" />
-        </div>
+
         <div class="form-group">
           <label for="description">Описание заявки</label>
           <textarea v-model="form.description" id="description"></textarea>
         </div>
-        <div class="form-group">
-          <label for="due_date">Срок</label>
-          <input v-model="form.due_date" type="datetime-local" id="due_date" />
-        </div>
+
         <div class="form-actions">
-          <button type="submit">Создать</button>
-          <button type="button" @click="$emit('close')">Назад</button>
+          <button class="create-btn" type="submit">Создать</button>
+          <button class="create-btn" type="button" @click="$emit('close')">
+            Назад
+          </button>
         </div>
       </form>
     </div>
@@ -118,7 +137,13 @@ export default {
         );
         this.premises = response.data.results;
       } catch (error) {
-        console.error("Error fetching premises:", error.response.data);
+        this.$notify({
+          group: "api",
+          type: "error",
+          title: "Ошибка",
+          text: error.response.data.detail || "Неизвестная ошибка",
+        });
+        console.error("Error fetching premises:", error?.response?.data);
       }
     },
     async fetchApartments() {
@@ -133,7 +158,13 @@ export default {
         );
         this.apartments = response.data.results;
       } catch (error) {
-        console.error("Error fetching apartments:", error.response.data);
+        this.$notify({
+          group: "api",
+          type: "error",
+          title: "Ошибка",
+          text: error.response.data.detail || "Неизвестная ошибка",
+        });
+        console.error("Error fetching apartments:", error?.response?.data);
       }
     },
     async handleSubmit() {
@@ -146,7 +177,7 @@ export default {
         await this.$store.dispatch("createRequest", formData);
         this.$emit("close");
       } catch (error) {
-        console.error("Error creating request:", error.response.data);
+        console.error("Error creating request:", error?.response?.data);
         this.$notify({
           group: "api",
           type: "error",
@@ -173,13 +204,30 @@ export default {
 
   .modal-content {
     background: white;
-    padding: 20px;
+    padding: 24px 32px;
     border-radius: 8px;
-    width: 400px;
+    max-width: 738px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+
+    .title-block {
+      display: flex;
+      width: 100%;
+      justify-content: space-between;
+    }
+
+    .first-block {
+      width: 100%;
+      display: flex;
+      gap: 15px;
+      justify-content: space-between;
+    }
   }
 
   .form-group {
     margin-bottom: 15px;
+    width: 100%;
   }
 
   .form-group label {

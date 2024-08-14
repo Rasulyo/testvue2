@@ -1,74 +1,75 @@
 <template>
   <div class="modal">
     <div class="modal-content">
-      <h3>Редактирование заявки №{{ request.number }}</h3>
+      <div class="title-block">
+        <h3>Редактирование заявки №{{ request.number }}</h3>
+        <h3>Новая</h3>
+      </div>
       <form @submit.prevent="handleSubmit">
-        <div class="form-group">
-          <label for="created_at">Создана</label>
-          <input
-            v-model="form.created_at"
-            type="text"
-            id="created_at"
-            disabled
-          />
+        <div class="first-block">
+          <div class="form-group">
+            <label for="premise_id">Дом</label>
+            <input
+              type="text"
+              :value="request.premise.full_address"
+              id="premise_id"
+              disabled
+              readonly
+            />
+          </div>
+          <div class="form-group">
+            <label for="apartment_id">Квартира</label>
+            <input
+              type="text"
+              :value="request.apartment.label"
+              id="apartment_id"
+              disabled
+              readonly
+            />
+          </div>
+          <div class="form-group">
+            <label for="due_date">Срок</label>
+            <input :value="form.due_date" type="datetime-local" id="due_date" />
+          </div>
         </div>
-        <div class="form-group">
-          <label for="premise_id">Дом</label>
-          <input
-            v-model="form.premise_id"
-            type="text"
-            id="premise_id"
-            disabled
-          />
-        </div>
-        <div class="form-group">
-          <label for="apartment_id">Квартира</label>
-          <input
-            v-model="form.apartment_id"
-            type="text"
-            id="apartment_id"
-            disabled
-          />
-        </div>
-        <div class="form-group">
-          <label for="last_name">Фамилия</label>
-          <input
-            v-model="form.applicant.last_name"
-            type="text"
-            id="last_name"
-          />
-        </div>
-        <div class="form-group">
-          <label for="first_name">Имя</label>
-          <input
-            v-model="form.applicant.first_name"
-            type="text"
-            id="first_name"
-          />
-        </div>
-        <div class="form-group">
-          <label for="patronymic_name">Отчество</label>
-          <input
-            v-model="form.applicant.patronymic_name"
-            type="text"
-            id="patronymic_name"
-          />
-        </div>
-        <div class="form-group">
-          <label for="username">Телефон</label>
-          <input v-model="form.applicant.username" type="text" id="username" />
+
+        <div class="first-block">
+          <div class="form-group">
+            <label for="last_name">Фамилия</label>
+            <input
+              v-model="form.applicant.last_name"
+              type="text"
+              id="last_name"
+            />
+          </div>
+          <div class="form-group">
+            <label for="first_name">Имя</label>
+            <input
+              v-model="form.applicant.first_name"
+              type="text"
+              id="first_name"
+            />
+          </div>
+          <div class="form-group">
+            <label for="patronymic_name">Отчество</label>
+            <input
+              v-model="form.applicant.patronymic_name"
+              type="text"
+              id="patronymic_name"
+            />
+          </div>
+          <div class="form-group">
+            <label for="username">Телефон</label>
+            <input
+              v-model="form.applicant.username"
+              type="text"
+              id="username"
+            />
+          </div>
         </div>
         <div class="form-group">
           <label for="description">Описание заявки</label>
           <textarea v-model="form.description" id="description"></textarea>
-        </div>
-        <div class="form-group">
-          <label for="due_date">Срок</label>
-          <input v-model="form.due_date" type="datetime-local" id="due_date" />
-        </div>
-        <div class="form-group">
-          <label for="status">Статус</label>
-          <input v-model="form.status" type="text" id="status" disabled />
         </div>
         <div class="form-actions">
           <button type="submit">Сохранить</button>
@@ -114,12 +115,12 @@ export default {
         });
         this.$emit("close");
       } catch (error) {
-        console.error("Ошибка при обновлении заявки:", error.response.data);
+        console.error("Ошибка при обновлении заявки:", error);
         this.$notify({
           group: "api",
           type: "error",
           title: "Ошибка",
-          text: error.response.data.detail || "Неизвестная ошибка",
+          text: error.response?.data.detail || "Неизвестная ошибка",
         });
       }
     },
@@ -141,13 +142,17 @@ export default {
 
   .modal-content {
     background: white;
-    padding: 20px;
+    padding: 24px 32px;
     border-radius: 8px;
-    width: 400px;
+    max-width: 738px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
   }
 
   .form-group {
     margin-bottom: 15px;
+    width: 100%;
   }
 
   .form-group label {

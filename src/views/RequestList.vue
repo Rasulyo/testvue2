@@ -1,6 +1,6 @@
 <template>
   <div class="request-list">
-    <h2>Requests</h2>
+    <h2 class="request-title">Список заявок</h2>
     <div class="tableWrapper">
       <button class="create-btn" @click="openCreateModal">Создать</button>
       <div class="search-block">
@@ -64,15 +64,34 @@
         </tr>
       </tbody>
     </table>
-    <button @click="previousPage" :disabled="pagination.currentPage <= 1">
-      Previous
-    </button>
-    <button
-      @click="nextPage"
-      :disabled="pagination.currentPage >= pagination.pages"
-    >
-      Next
-    </button>
+    <div class="pagination">
+      <div class="pagination-info">
+        <span>{{ currentPageRange }} из {{ totalCount }} записей</span>
+        <div class="select-container">
+          <select
+            class="pageSizeSelect"
+            v-model="pageSize"
+            id="pageSize"
+            @change="updatePageSize"
+          >
+            <option value="10">10</option>
+            <option value="20">20</option>
+            <option value="50">50</option>
+          </select>
+        </div>
+      </div>
+      <div class="pagination-btns">
+        <button @click="previousPage" :disabled="pagination.currentPage <= 1">
+          Previous
+        </button>
+        <button
+          @click="nextPage"
+          :disabled="pagination.currentPage >= pagination.pages"
+        >
+          Next
+        </button>
+      </div>
+    </div>
 
     <EditRequestModal
       v-if="isEditing"
@@ -87,6 +106,7 @@
 import EditRequestModal from "@/components/EditRequestModal.vue";
 import CreateRequestModal from "@/components/CreateRequestModal.vue";
 import axios from "axios";
+import { mapGetters, mapMutations } from "vuex";
 
 export default {
   components: {
@@ -96,15 +116,18 @@ export default {
   data() {
     return {
       search: "",
+      premises: null,
       selectedRequest: null,
       isEditing: false,
       isCreating: false,
+      pageSize: 10,
       form: {
         premise_id: null,
       },
     };
   },
   computed: {
+    ...mapGetters(["totalCount", "currentPageRange"]),
     requests() {
       return this.$store.getters.getRequests;
     },
@@ -116,8 +139,17 @@ export default {
     this.fetchPremises();
   },
   methods: {
+    ...mapMutations(["SET_COUNT_PAGE"]),
+    updatePageSize() {
+      this.SET_COUNT_PAGE(this.pageSize);
+      this.fetchFilteredRequests();
+    },
     fetchFilteredRequests() {
-      this.$store.dispatch("fetchRequests", { search: this.search });
+      this.$store.dispatch("fetchRequests", {
+        search: this.search,
+        premise_id: this.form.premise_id,
+        pageSize: this.pageSize,
+      });
     },
     editRequest(request) {
       this.selectedRequest = request;
@@ -136,7 +168,6 @@ export default {
       return new Date(dateString).toLocaleDateString("ru-RU", options);
     },
     formatAddress(request) {
-      console.log(request, "request");
       return `${request.premise?.short_address} ${
         request.apartment?.label || "No address"
       }`;
@@ -169,7 +200,13 @@ export default {
         );
         this.premises = response.data.results;
       } catch (error) {
-        console.error("Error fetching premises:", error.response.data);
+        this.$notify({
+          group: "api",
+          type: "error",
+          title: "Ошибка",
+          text: error.response?.data?.detail || "Неизвестная ошибка",
+        });
+        console.error("Error fetching premises:", error.response?.data);
       }
     },
   },
@@ -186,6 +223,11 @@ export default {
 <style lang="scss">
 .request-list {
   padding: 1em;
+
+  .request-title {
+    text-align: start;
+    font-size: 20px;
+  }
 
   .tableWrapper {
     display: flex;
@@ -280,6 +322,47 @@ export default {
   }
   button {
     margin: 0.5em;
+  }
+  .pagination {
+    display: flex;
+    width: 100%;
+    margin-top: 20px;
+    justify-content: space-between;
+
+    .pagination-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .pageCount {
+      width: 89px;
+      height: 40px;
+    }
+    .pageSizeSelect {
+      width: 89px;
+      height: 40px;
+      padding: auto 10px;
+      font-size: 16px;
+    }
+    .pagination-btns > button {
+      background-color: #44a248;
+      color: white;
+      max-width: 110px;
+      padding: 0 15px;
+      height: 36px;
+      border: none;
+      border-radius: 10px;
+
+      &:disabled {
+        pointer-events: none;
+        background-color: #626c63;
+        color: black;
+      }
+      &:hover {
+        cursor: pointer;
+      }
+    }
   }
 }
 </style>
