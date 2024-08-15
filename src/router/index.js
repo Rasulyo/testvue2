@@ -3,6 +3,7 @@ import VueRouter from "vue-router";
 import LoginView from "@/views/LoginView.vue";
 import RequestList from "@/views/RequestList.vue";
 import store from "@/store/store";
+import TestView from "@/views/TestView.vue";
 
 Vue.use(VueRouter);
 
@@ -11,6 +12,11 @@ const routes = [
     path: "/login",
     name: "Login",
     component: LoginView,
+  },
+  {
+    path: "/test",
+    name: "Test",
+    component: TestView,
   },
   {
     path: "/",
